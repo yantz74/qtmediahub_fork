@@ -1,0 +1,3 @@
+#!/bin/sh
+scriptPath=$(cd ${0%/*} && pwd -P)
+$scriptPath/qtmediahub-core/hub/bin/qtmediahub-launcher $@

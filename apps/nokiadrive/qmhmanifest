@@ -1,0 +1,8 @@
+import QtQuick 1.1
+
+QtObject {
+    property string name: qsTr("Drive")
+    property string description: qsTr("Nokia Drive application")
+    property string ui: "imports/views/QmhNokiaDrive.qml"
+}
+

@@ -1,0 +1,327 @@
+Index: cpp/device.cpp
+===================================================================
+--- cpp/device.cpp	(revision 1877)
++++ cpp/device.cpp	(working copy)
+@@ -39,6 +39,7 @@
+       m_virtualMemory(0),
+       m_residentMemory(0),
+       m_netPingEnabled(true),
++      m_dbus(0),
+       m_allowBacklightDimming(false),
+       m_windowState(Qt::WindowNoState)
+ #ifdef Q_MEEGO
+@@ -46,9 +47,9 @@
+     ,m_topEdgeProperty("Screen.TopEdge")
+     ,m_carModeProperty("Carmode.Status")
+ #endif
+-    ,m_dbus(0)
+ {
+-    view->installEventFilter(this);
++    if(view)
++        view->installEventFilter(this);
+ #ifdef Q_MEEGO
+     m_keyboardOpenProperty.waitForSubscription();
+     m_topEdgeProperty.waitForSubscription();
+@@ -203,12 +204,16 @@
+ 
+ bool Device::minimized() const
+ {
+-    return m_view->windowState() & Qt::WindowMinimized;
++    if(m_view)
++        return m_view->windowState() & Qt::WindowMinimized;
++    else
++        return false;
+ }
+ 
+ void Device::setMinimized(bool minimized)
+ {
+-    m_view->setWindowState(minimized ? Qt::WindowMinimized : (Qt::WindowActive | Qt::WindowFullScreen));
++    if(m_view)
++        m_view->setWindowState(minimized ? Qt::WindowMinimized : (Qt::WindowActive | Qt::WindowFullScreen));
+ }
+ 
+ bool Device::isOnline()
+@@ -395,14 +400,33 @@
+     return m_width;
+ }
+ 
++void Device::setWidth(int w)
++{
++    if(m_width != w) {
++        m_width = w;
++        emit widthChanged();
++    }
++}
++
+ int Device::height() const
+ {
+     return m_height;
+ }
+ 
++void Device::setHeight(int h)
++{
++    if(m_height != h) {
++        m_height = h;
++        emit heightChanged();
++    }
++}
++
+ bool Device::activated() const
+ {
+-    return m_view->isActiveWindow();
++    if(m_view)
++        return m_view->isActiveWindow();
++    else
++        return true;
+ }
+ 
+ bool Device::eventFilter(QObject *obj, QEvent *event)
+Index: cpp/device.h
+===================================================================
+--- cpp/device.h	(revision 1877)
++++ cpp/device.h	(working copy)
+@@ -34,8 +34,8 @@
+     Q_PROPERTY(QString mcc READ getMcc FINAL)
+     Q_PROPERTY(bool chineseArea READ isChineseArea FINAL)
+     Q_PROPERTY(bool backlightDimming READ backlightDimming() WRITE setBacklightDimming FINAL)
+-    Q_PROPERTY(int width READ width() NOTIFY widthChanged FINAL)
+-    Q_PROPERTY(int height READ height() NOTIFY heightChanged FINAL)
++    Q_PROPERTY(int width READ width() WRITE setWidth NOTIFY widthChanged FINAL)
++    Q_PROPERTY(int height READ height() WRITE setHeight NOTIFY heightChanged FINAL)
+     Q_PROPERTY(bool softwareKeyboardVisible READ softwareKeyboardVisible WRITE setSoftwareKeyboardVisible NOTIFY softwareKeyboardVisibleChanged FINAL)
+     Q_PROPERTY(QString orientation READ orientation NOTIFY orientationChanged FINAL)
+     Q_PROPERTY(QString language READ getLanguage FINAL)
+@@ -59,7 +59,7 @@
+         Landscape
+     };
+ 
+-    explicit Device(QDeclarativeView* view);
++    explicit Device(QDeclarativeView* view = 0);
+     virtual ~Device();
+ 
+     bool keyboardOpen() const;
+@@ -75,7 +75,9 @@
+     bool backlightDimming() const;
+     void setBacklightDimming(bool enabled);
+     int width() const;
++    void setWidth(int w);
+     int height() const;
++    void setHeight(int h);
+     bool softwareKeyboardVisible() const;
+     void setSoftwareKeyboardVisible(bool visible);
+     QString orientation() const;
+Index: cpp/mamba-plugin.cpp
+===================================================================
+--- cpp/mamba-plugin.cpp	(revision 0)
++++ cpp/mamba-plugin.cpp	(revision 0)
+@@ -0,0 +1,58 @@
++#include <QLocale>
++#include <QDeclarativeEngine>
++#include <QDeclarativeContext>
++#include <qdeclarative.h>
++#include <QTranslator>
++#include <QCoreApplication>
++
++#include "mamba-plugin.h"
++#include "application.h"
++#include "device.h"
++#include "npshelper.h"
++#include "qsettingsmanager.h"
++#include "networkaccessmanagerfactory.h"
++
++// this is crude
++#define P_STR( x )           P_STR_A( x )
++#define P_STR_A( x )         #x
++
++#ifndef MAMBA_VERSION
++#define MAMBA_VERSION unknown
++#endif
++
++
++void MambaPlugin::initializeEngine(QDeclarativeEngine *engine, const char * /*uri*/)
++{
++    device = new Device;
++
++    //Load i18n
++    QString locale = QLocale::system().name();
++    QString countryCode = locale.right(2);
++    QString region = countryCode;
++
++    QString translationFile = QString(QCoreApplication::applicationDirPath() + "/../../apps/nokiadrive/imports/resources/i18n/drive_" + locale);
++    qDebug() << "Attempting to load " << translationFile;  //### (relative path above)
++    translator = new QTranslator;
++    if (!translator->load(translationFile)) {
++        qDebug("Translation file not loaded.");
++    }
++    QCoreApplication::installTranslator(translator);
++
++    engine->setNetworkAccessManagerFactory(new NetworkAccessManagerFactory);
++
++    NPSHelper npsHelper;
++    engine->rootContext()->setContextProperty("mambaVersion", QString(P_STR(MAMBA_VERSION)));
++    engine->rootContext()->setContextProperty("device", device);
++    engine->rootContext()->setContextProperty("countryCode", countryCode.toLower());
++    engine->rootContext()->setContextProperty("systemLocale", locale);
++    engine->rootContext()->setContextProperty("systemRegion", region);
++    engine->rootContext()->setContextProperty("npsHelper", &npsHelper);
++}
++
++void MambaPlugin::registerTypes(const char * /*uri*/)
++{
++    qmlRegisterType<QSettingsManager>("SettingsManager", 1, 0, "SettingsManager");
++    qmlRegisterType<DriveApp>("DriveApp", 1, 0, "DriveApp");
++}
++
++Q_EXPORT_PLUGIN2(mamba-plugin, MambaPlugin);
+Index: cpp/mamba-plugin.h
+===================================================================
+--- cpp/mamba-plugin.h	(revision 0)
++++ cpp/mamba-plugin.h	(revision 0)
+@@ -0,0 +1,22 @@
++#ifndef MAMBAPLUGIN_H
++#define MAMBAPLUGIN_H
++
++#include <QDeclarativeExtensionPlugin>
++
++class Device;
++class QTranslator;
++
++class MambaPlugin : public QDeclarativeExtensionPlugin
++{
++    Q_OBJECT
++public:
++    virtual void initializeEngine(QDeclarativeEngine *engine, const char *uri);
++    virtual void registerTypes(const char *uri);
++
++private:
++    Device      *device;
++    QTranslator *translator;
++};
++
++#endif // MAMBAPLUGIN_H
++
+Index: cpp/main.cpp
+===================================================================
+--- cpp/main.cpp	(revision 1877)
++++ cpp/main.cpp	(working copy)
+@@ -142,7 +142,7 @@
+     driveQmlI18N = "e:/mamba-ui/resources/i18n/drive";
+ #endif
+ 
+-    qmlRegisterType<QSettingsManager>("Settings", 1, 0, "Settings");
++    qmlRegisterType<QSettingsManager>("SettingsManager", 1, 0, "SettingsManager");
+     qmlRegisterType<DriveApp>("DriveApp", 1, 0, "DriveApp");
+ 
+     //Load i18n
+Index: components/Button.qml
+===================================================================
+--- components/Button.qml	(revision 1877)
++++ components/Button.qml	(working copy)
+@@ -123,7 +123,7 @@
+             style: Text.Raised
+             color: buttonStyle.color
+             font.family: buttonStyle.family
+-            font.weight: buttonStyle.weight
++            font.weight: Font.Bold //buttonStyle.weight
+             font.pixelSize: buttonStyle.size
+             font.capitalization: eval(buttonStyle.capitalization)
+         }
+Index: components/ToggleButton.qml
+===================================================================
+--- components/ToggleButton.qml	(revision 1877)
++++ components/ToggleButton.qml	(working copy)
+@@ -159,7 +159,7 @@
+         anchors.centerIn: parent
+         color: toggleButtonStyle.color
+         font.family: toggleButtonStyle.family
+-        font.weight: toggleButtonStyle.weight
++        font.weight: Font.Bold //toggleButtonStyle.weight
+         font.pixelSize: toggleButtonStyle.size
+     }
+ 
+Index: mamba-ui.pro
+===================================================================
+--- mamba-ui.pro	(revision 1877)
++++ mamba-ui.pro	(working copy)
+@@ -4,14 +4,25 @@
+ #
+ #-------------------------------------------------
+ 
++
+ QT       += core declarative network dbus
+ 
+-TARGET = mamba-ui
++CONFIG(plugin) {
++    TARGET = mamba-plugin
++    TEMPLATE = lib
++    HEADERS  = cpp/mamba-plugin.h
++    SOURCES  = cpp/mamba-plugin.cpp
++} else {
++    TARGET = mamba-ui
++    TEMPLATE = app
++    SOURCES  = cpp/main.cpp
++}
+ 
+-TEMPLATE = app
+ CONFIG -= app_bundle
++CONFIG += mobility
++MOBILITY += systeminfo location
+ 
+-SOURCES += cpp/main.cpp \
++SOURCES += \
+     cpp/device.cpp \
+     cpp/networkaccessmanagerfactory.cpp \
+     cpp/qsettingsmanager.cpp \
+Index: views/main.qml
+===================================================================
+--- views/main.qml	(revision 1877)
++++ views/main.qml	(working copy)
+@@ -1,22 +1,24 @@
+ import QtQuick 1.1
+-import components 1.0
++import components 1.0 as Components
+ import models 1.0
+-import Settings 1.0
++import SettingsManager 1.0
+ 
+ 
+ Rectangle {
+     id: windowBackground
+-    width: device.width
+-    height: device.height
++    anchors.fill: parent
++    onWidthChanged: device.width = windowBackground.width;
++    onHeightChanged: device.height = windowBackground.height;
++
+     color: "black"
+     z: 1
+ 
+-    Window {
++    Components.Window {
+         id: window
+         anchors.centerIn: parent
+     }
+ 
+-    Application {
++    Components.Application {
+         id: application
+         onApplicationShow: {
+             windowBackground.z = 2
+@@ -24,7 +26,7 @@
+         }
+     }
+ 
+-    Settings {
++    SettingsManager {
+         id: settingsManager
+     }
+ 
+@@ -35,7 +37,7 @@
+             var settingSetup = {
+                 "organisation" : "Nokia",
+                 "application" : "Drive",
+-                "format" : Settings.IniFormat
++                "format" : SettingsManager.IniFormat
+             };
+             settingsManager.setup(settingSetup);
+             modelFactory.getModel("AppSettingsModel").applyAppSettings();

@@ -1,0 +1,29 @@
+Confluence.qml is the "screen". It has a background, root menu and the 
+headers/footers. It has 3 states: showingRootBlade, showingHeaders
+and showingNothing. A mousegrabber element in Confluence serves to
+provide as a container for modal dialog.
+
+A Window is a basic windowing component. Each Window has a blade with
+z = 1. It occupies the the full screen. Pressing escape closes the window.
+Windows can be nested. Child windows would usually want to set their z to
+be one more than the blade's z. All top level windows are children of the
+screen (Confluence.qml).
+
+Windows can display other Windows that are not it's children (for example, 
+the AVPlayer is used by MusicWindow and VideoWindow).
+
+Every Window when opened, adds itself to the Window stack.
+
+A Dialog displays a modal dialog.
+
+Focus handling:
+                            Screen
+                    W1        W2        W3
+                W4         Dialog
+
+Screen, Dialog, Windows are FocusScopes. On startup, Screen gets active Focus
+and this is passed around by setting focus=true.
+
+When a Window is shown, it sets focus on itself. When the Window closes, it turn
+on the focus of the topmost item in the Window stack.
+

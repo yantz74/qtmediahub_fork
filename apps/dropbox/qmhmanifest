@@ -1,0 +1,9 @@
+import QtQuick 1.1
+
+QtObject {
+    property string name: qsTr("Dropbox")
+    property string description: qsTr("Dropbox client")
+    property string background: "dropbox-large.png"
+    property string ui: "Dropbox.qml"
+}
+

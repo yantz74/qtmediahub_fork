@@ -1,0 +1,22 @@
+#!/bin/bash
+set -e
+
+# begin script
+SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+#So freaking gross it actually smarts: set PWD to known quantity until
+#resource paths are more robust
+if [ "$SCRIPT_DIR" = "$PWD" ]; then
+    cd $SCRIPT_DIR/qtmediahub-core
+fi
+
+$SCRIPT_DIR/qtmediahub-core/configure $@
+
+#oh yes I did
+cd ..
+if [ "$SCRIPT_DIR" = "$PWD" ]; then
+    mv $SCRIPT_DIR/qtmediahub-core/.qmake.cache .
+fi
+
+qmake $SCRIPT_DIR/qtmediahub.pro
+qmake $SCRIPT_DIR/qtmediahub-core/qtmediahub-core.pro

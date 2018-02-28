@@ -1,0 +1,8 @@
+import QtQuick 1.1
+
+QtObject {
+    property string name: qsTr("TerminalMode")
+    property string description: qsTr("Displays remote screen")
+    property string ui: "terminalmode.qml"
+}
+

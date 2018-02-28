@@ -1,0 +1,45 @@
+{
+    "name": "Confluence",
+    "version": "0.8",
+
+    "resolutions": {
+        "720p": {
+            "file": "r720/main.qml"
+        }
+    },
+    
+    "default_resolution": "720p",
+
+    "screenshot": "screenshot.png",
+
+    "website": "http://www.qtmediahub.com/trac/Skins/Confluence",
+
+    "authors": [
+        { "name": "Girish Ramakrishnan", "email": "girish@forwardbias.in" },
+        { "name": "Donald Carr", "email": "sirspudd@gmail.com" }
+    ],
+
+    "settings": [
+        { "name": "shroom",         "default_value": "false",           "doc": "toggle shroomfluence" },
+        { "name": "volume",         "default_value": "0.5",             "doc": "volume to be restored and saved" },
+        { "name": "osdTimeout",     "default_value": "3000",            "doc": "osd timeout in ms" },
+        { "name": "showFPS",        "default_value": "false",           "doc": "toggle FPS counter" },
+        { "name": "splash",         "default_value": "true",            "doc": "toggle splash screen" },
+        { "name": "pixmapScaling",  "default_value": "true",            "doc": "enable pixmap scaling" },
+        { "name": "webkitPlugins",  "default_value": "false",           "doc": "enable webkit plugins" },
+        { "name": "soundEffects",   "default_value": "false",           "doc": "toggle sound effects for menu entries" },
+        { "name": "screensaver",    "default_value": "false",           "doc": "toggle screensaver" },
+        { "name": "weatherCity",    "default_value": "San Francisco",   "doc": "set city for weather forecast" },
+        { "name": "musicView",      "default_value": "POSTER",          "doc": "set default view for music" },
+        { "name": "videoView",      "default_value": "POSTER",          "doc": "set default view for videos" },
+        { "name": "pictureView",    "default_value": "POSTER",          "doc": "set default view for pictures" },
+        { "name": "radioView",      "default_value": "POSTER",          "doc": "set default view for radio" },
+        { "name": "snesView",       "default_value": "POSTER",          "doc": "set default view for snes" },
+        { "name": "musicGroupBy",   "default_value": "None",            "doc": "set group by for music" },
+        { "name": "videoGroupBy",   "default_value": "None",            "doc": "set group by for videos" },
+        { "name": "pictureGroupBy", "default_value": "None",            "doc": "set group by for pictures" },
+        { "name": "radioGroupBy",   "default_value": "None",            "doc": "set group by for radio" },
+        { "name": "snesGroupBy",    "default_value": "None",            "doc": "set group by for snes" }
+    ]
+}
+

@@ -1,0 +1,16 @@
+Right=Right
+Down=Down
+Left=Left
+Up=Up
+Enter=Return,Enter
+Menu=Escape
+Back=F12
+Context=Meta,F1
+MediaPlayPause=Space,MediaTogglePlayPause,F7
+MediaStop=MediaStop,F6
+MediaPrevious=MediaPrevious,F5
+MediaNext=MediaNext,F8
+ContextualUp=Plus
+ContextualDown=Minus
+VolumeUp=VolumeUp,F10
+VolumeDown=VolumeDown,F9

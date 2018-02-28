@@ -1,0 +1,24 @@
+{
+    "name": "Orca",
+    "version": "0.8",
+    "qmlVersion": "2",
+
+    "resolutions": {
+        "720p": {
+            "file": "r720/Orca.qml"
+        }
+    },
+    
+    "default_resolution": "720p",
+
+    "screenshot": "screenshot.jpg",
+
+    "authors": [
+        { "name": "Johannes Zellner", "email": "webmaster@nebulon.de" }
+    ],
+
+    "settings": [
+        { "name": "volume", "default_value": "0.5", "doc": "volume to be restored and saved" }
+    ]
+}
+

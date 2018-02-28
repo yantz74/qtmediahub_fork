@@ -1,0 +1,25 @@
+{
+    "name": "Delphin",
+    "version": "0.8",
+
+    "resolutions": {
+        "720p": {
+            "file": "r720/Delphin.qml"
+        }
+    },
+    
+    "default_resolution": "720p",
+
+    "screenshot": "screenshot.jpg",
+
+    "website": "http://www.qtmediahub.com/trac/wiki/Delphin",
+
+    "authors": [
+        { "name": "Johannes Zellner", "email": "webmaster@nebulon.de" }
+    ],
+
+    "settings": [
+        { "name": "volume", "default_value": "0.5", "doc": "volume to be restored and saved" }
+    ]
+}
+

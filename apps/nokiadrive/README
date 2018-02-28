@@ -1,0 +1,31 @@
+Abstract
+========
+This application is supposed to be used in the rapid skin.
+It is an integration of the NokiaDrive application into the skin.
+
+MapsPlugin
+=============
+NokiaDrive requires libMapsPlugin.so. The library can either be installed in
+imports/MapsPlugin or in in qt-path/imports/MapsPlugin along with an
+adequate qmldir file: "plugin MapsPlugin"
+The library can be retreived from http://bf-hudson-00.europe.nokia.com:8080/
+
+NokiaDrive
+==========
+The NokiaDrive application source code needs to be checked out from a
+different repository, e.g.:
+https://svni1.isource-nokia.nokia.com/isource/svnroot/mamba-ui/branches/PR1.2_trunk
+
+The "nokiadrive.patch" has to be applied (at least until the changes have been
+committed to the official NokiaDrive repository).
+
+To build the NokiaDrive plugin enter the following commands:
+$ qmake CONFIG+=plugin
+$ make
+
+Integration
+===========
+To use the application in the rapid skin run the "setup.sh" script:
+$ ./setup.sh path/to/nokiadrive
+It will create links to the NokiaDrive application, create qmldir files
+and copy additioanl files that are needed.

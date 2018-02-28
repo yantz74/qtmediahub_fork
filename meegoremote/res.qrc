@@ -1,0 +1,16 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/TargetsPage.qml</file>
+        <file>qml/ControlPage.qml</file>
+        <file>qml/Trackpad.qml</file>
+        <file>qml/BusyPage.qml</file>
+        <file>qml/NewDeviceSheet.qml</file>
+        <file>qml/AboutDialog.qml</file>
+        <file>qml/DeviceDeleteDialog.qml</file>
+        <file>qml/Key.qml</file>
+        <file>qml/VirtualKeyboard.qml</file>
+        <file>qml/AllDeviceDeleteDialog.qml</file>
+        <file>qml/UpdateDeviceSheet.qml</file>
+    </qresource>
+</RCC>

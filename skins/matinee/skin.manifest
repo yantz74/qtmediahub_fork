@@ -1,0 +1,28 @@
+{
+    "name": "Matinee",
+    "version": "0.1",
+    "qmlVersion": "2",
+    
+    "resolutions": {
+        "720p": {
+            "file": "qml/Matinee.qml"
+        }
+    },
+    
+    "default_resolution": "720p",
+
+    "screenshot": "screenshot.jpg",
+
+    "website": "http://gitorious.org/qtmediahub/matinee",
+
+    "authors": [
+        { "name": "Johannes Zellner", "email": "webmaster@nebulon.de" }
+    ],
+
+    "settings": [
+        { "name": "volume", "default_value": "0.5", "doc": "volume to be restored and saved" },
+        { "name": "videoLivePreview", "default_value": "false", "doc": "toggles video life preview in video wall" },
+        { "name": "fancy", "default_value": "true", "doc": "toggles some shader effects" }
+    ]
+}
+

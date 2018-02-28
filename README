@@ -1,0 +1,55 @@
+This is the unified Qt Media Hub repository.
+
+This project is primarily tested against:
+
+Qt 4.8
+Qt 5.0 (alpha era)
+
+caveat emptor if you deviate from these versions
+
+The core repository and the skins are just git submodules.
+
+All the following commands are run in the toplevel dir, where this document
+resides
+
+Get the ball rolling with:
+
+git submodule init
+git submodule update
+(Also do this every time another submodule is added)
+
+git submodule foreach git checkout master
+
+Now you have all the source code in place and are able to build the project:
+
+qmake
+qmake (you have to run qmake twice, until we have a configure script)
+make
+
+(for more details about Qt version and Qt Mobility, see QT-BUILD-INSTRUCTIONS)
+
+Keep up to date with the current known good state:
+
+git fetch
+git checkout master
+git rebase origin/master
+git submodule update
+
+git submodule foreach git fetch
+git submodule foreach git checkout master
+git submodule foreach git rebase origin/master
+
+Please note your branches will be checked out to a certain sha1, and hence
+will be floating.
+
+You can check out any tag (run: git tag for list of tags) and enact it with:
+
+git checkout tagname
+git submodule update
+
+Those wanting to track master on all submodules can use the following
+devastating script at their own risk:
+
+scripts/sync-to-head
+
+or roll their own

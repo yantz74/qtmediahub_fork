@@ -1,0 +1,23 @@
+{
+    "name": "Rapid",
+    "version": "0.8",
+
+    "resolutions": {
+        "480p": {
+            "file": "480/Rapid.qml"
+        }
+    },
+    
+    "default_resolution": "480p",
+
+    "website": "http://www.qtmediahub.com/trac/wiki/Rapid",
+
+    "authors": [
+        { "name": "Thomas senyk", "email": "thomas.senyk@nokia.com" }
+    ],
+
+    "settings": [
+        { "name": "volume", "default_value": "0.5", "doc": "volume to be restored and saved" }
+    ]
+}
+

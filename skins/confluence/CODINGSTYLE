@@ -1,0 +1,5 @@
+QModelIndex variables must be have 'modelIndex'. Just 'index' indicates an integer.
+When passing the itemdata, name the variable as itemdata or similar and NOT item.
+
+state can be overriden. Hence, use StateGroup to confine states of a particular 
+element.

@@ -1,0 +1,119 @@
+/** This file is part of Qt Media Hub**
+
+Copyright (c) 2012 Nokia Corporation and/or its subsidiary(-ies).*
+All rights reserved.
+
+Contact:  Nokia Corporation qmh-development@qt-project.org
+
+You may use this file under the terms of the BSD license
+as follows:
+
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the following
+conditions are met:
+* Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright
+notice, this list of conditions and the following disclaimer in the
+documentation and/or other materials provided with the distribution.
+
+* Neither the name of Nokia Corporation and its Subsidiary(-ies)
+nor the names of its contributors may be used to endorse or promote
+products derived from this software without specific prior
+written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
+ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. **/
+
+import QtQuick 2.0
+import "components/"
+import DirModel 1.0
+
+Dialog {
+    id: root
+
+    property variant mediaType
+    property list<QtObject> actionList
+
+    onOpened: {
+        fillSearchPathList();
+        searchPathListView.focus = true
+    }
+
+    function fillSearchPathList() {
+        var sources = runtime.mediaScanner.searchPaths(root.mediaType)
+        var newList = new Array();
+        for(var i = 0; i < sources.length; ++i) {
+            var component = Qt.createComponent("components/ConfluenceAction.qml");
+            if (component.status == Component.Ready) {
+                var action = component.createObject(root, {text: sources[i], options: [qsTr("Keep"), qsTr("Remove")] });
+                newList.push(action);
+            }
+        }
+        actionList = newList;
+    }
+
+    function removeSelectedSearchPaths() {
+        for(var i = 0; i < actionList.length; ++i) {
+            if (actionList[i].currentOptionIndex !== 0) {
+                runtime.mediaScanner.removeSearchPath(root.mediaType, actionList[i].text)
+            }
+        }
+    }
+
+
+    Column {
+        spacing: 5
+        width: 620
+        Text {
+            id: browseLabel
+            width: parent.width
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            text: qsTr("REMOVE MEDIA SEARCH PATH")
+            color: "steelblue"
+        }
+
+        ActionListView {
+            id: searchPathListView
+            clip: true
+            anchors.horizontalCenter: parent.horizontalCenter
+            model: actionList
+            focus: true
+            maxWidth: parent.width - parent.spacing*2
+            maxHeight: 350
+
+            Keys.onLeftPressed: buttonBox.focus = true
+            Keys.onRightPressed: buttonBox.focus = true
+        }
+
+        DialogButtonBox {
+            id: buttonBox
+            anchors.horizontalCenter: parent.horizontalCenter
+            onAccepted: {
+                root.removeSelectedSearchPaths()
+                root.accept()
+            }
+            onRejected: {
+                root.reject()
+            }
+
+            Keys.onLeftPressed: searchPathListView.focus = true
+            Keys.onRightPressed: searchPathListView.focus = true
+            Keys.onDownPressed: searchPathListView.focus = true
+            Keys.onUpPressed: searchPathListView.focus = true
+        }
+    }
+}
+

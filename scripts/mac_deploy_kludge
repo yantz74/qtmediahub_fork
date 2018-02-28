@@ -1,0 +1,35 @@
+#!/bin/sh -x
+set -o errexit
+
+scriptPath=$(cd ${0%/*} && pwd -P)
+
+PROJECT_DIR=$scriptPath/../qtmediahub-core
+APP_DIR=$PROJECT_DIR/qtmediahub.app
+CONTENTS_DIR=$PROJECT_DIR/qtmediahub.app/Contents
+
+rm -Rf $APP_DIR
+make
+
+macdeployqt $APP_DIR
+
+mkdir -p $CONTENTS_DIR/lib
+mkdir -p $CONTENTS_DIR/Frameworks
+
+cp -r $PROJECT_DIR/lib/qtmediahub $CONTENTS_DIR/Resources
+cp -r $PROJECT_DIR/lib/*.dylib $CONTENTS_DIR/Frameworks
+
+#restrict damage to bundle!
+find $APP_DIR -name "*.dylib"  | while read i
+do
+    install_name_tool $i -change libqmhcore.1.dylib @executable_path/../Frameworks/libqmhcore.1.dylib;
+    otool -L $i | grep .\*Qt.\*.framework | awk -F\  '{ print $1 }' | while read j
+    do
+        echo $j;
+        NEW_LIB_NAME=`echo $j | sed -e "s,\(.*\)\(.*Qt.*.framework.*\),@executable_path/../Frameworks/\2,"`
+        install_name_tool $i -change $j $NEW_LIB_NAME
+    done
+done
+
+echo "Deploying Qt fonts to bundle"
+mkdir -p $CONTENTS_DIR/lib
+cp -r $QTDIR/lib/fonts $CONTENTS_DIR/lib
